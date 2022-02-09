@@ -1,8 +1,9 @@
 package com.example.demo.models;
-
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-import com.example.demo.enums.ERole;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,8 +19,14 @@ import lombok.ToString;
 @Entity(name = "roles")
 public class Role {
 
-	private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private String name;
 
-	private ERole name;
+    public Role(String name) {
+        this.name = name;
+    }
+
 
 }

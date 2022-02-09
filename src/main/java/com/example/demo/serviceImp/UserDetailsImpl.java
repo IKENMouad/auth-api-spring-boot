@@ -3,9 +3,6 @@ package com.example.demo.serviceImp;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.persistence.Entity;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.example.demo.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
 	@Getter
@@ -29,19 +28,10 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Getter
 	private Collection<? extends GrantedAuthority> authorities;
-
-	public UserDetailsImpl(Long id, String username, String email, String password,
-			Collection<? extends GrantedAuthority> authorities) {
-		this.id = id;
-		this.username = username;
-		this.email = email;
-		this.password = password;
-		this.authorities = authorities;
-	}
-
+ 
 	public static UserDetailsImpl build(User user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
+				.map(role -> new SimpleGrantedAuthority(role.getName() )).collect(Collectors.toList());
 		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
 	}
 
@@ -74,5 +64,13 @@ public class UserDetailsImpl implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "UserDetailsImpl [authorities=" + authorities + ", email=" + email + ", id=" + id + ", password="
+				+ password + ", username=" + username + "]";
+	}
+
+	
 
 }
