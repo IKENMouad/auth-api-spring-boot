@@ -1,10 +1,8 @@
-package com.example.demo.security.jwt;
+package com.example.demo.config.security.jwt;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.example.demo.serviceImp.UserDetailsImpl;
 
@@ -35,9 +33,8 @@ public class JwtUtils {
 
 		Map<String, Object> claims = new HashMap<String, Object>();
 		claims.put("id", userPrincipal.getId());
-		claims.put("roles", userPrincipal.getAuthorities());
 		claims.put("email", userPrincipal.getEmail());
-		
+
 		return Jwts.builder().setSubject(userPrincipal.getUsername()).setClaims(claims)
 				.setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
@@ -46,7 +43,8 @@ public class JwtUtils {
 	}
 
 	public String getUserNameFromJwtToken(String token) {
-		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+		String username = (String) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().get("email");
+		return username;
 	}
 
 	public boolean validateJwtToken(String authToken) {

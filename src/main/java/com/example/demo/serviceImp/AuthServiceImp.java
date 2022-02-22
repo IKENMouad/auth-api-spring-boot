@@ -1,22 +1,23 @@
 package com.example.demo.serviceImp;
 
- import com.example.demo.dto.response.JwtResponse;
-import com.example.demo.dto.response.RegisterResponse;
 import com.example.demo.models.Role;
 import com.example.demo.repository.RoleRepository;
 
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+
+import com.example.demo.config.security.jwt.JwtUtils;
 import com.example.demo.dto.request.LoginRequest;
 import com.example.demo.dto.request.RegisterRequest;
 import com.example.demo.models.User;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.security.jwt.JwtUtils;
 import com.example.demo.service.AuthService;
 
 import java.util.HashSet;
@@ -30,33 +31,46 @@ public class AuthServiceImp implements AuthService {
 
 	private final UserRepository userRepository;
 	private final RoleRepository roleRepository;
-	private final PasswordEncoder  passwordEncoder  ;
+	private final PasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
- 	private final JwtUtils jwtUtils;
-
-	 
+	private final JwtUtils jwtUtils;
 
 	@Override
-	public JwtResponse login(LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-	SecurityContextHolder.getContext().setAuthentication(authentication);
-	String jwt = jwtUtils.generateJwtToken(authentication);
+	public String login(LoginRequest loginRequest) throws Exception {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String jwt = jwtUtils.generateJwtToken(authentication);
 
-	UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-	List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-			.collect(Collectors.toList());
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+					.collect(Collectors.toList());
+			jsonObject.put("token", jwt);
+			jsonObject.put("roles", roles);
+			jsonObject.put("username", userDetails.getUsername());
+			jsonObject.put("email", userDetails.getEmail());
+			jsonObject.put("id", userDetails.getId());
 
-			return new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+		} catch (BadCredentialsException e) {
+			jsonObject.put("status", "Error: Bad Credentials ");
+			jsonObject.put("status", "failure");
+		}
+		return jsonObject.toString();
 	}
 
 	@Override
-	public RegisterResponse register(RegisterRequest signUpRequest) {
+	public String register(RegisterRequest signUpRequest) throws Exception {
+		JSONObject jsonObject = new JSONObject();
+
 		if (userRepository.existsByUsername(signUpRequest.getName())) {
-			return  new RegisterResponse("Error: Username is already taken!");
+			jsonObject.put("status", "Error: Username is already taken!");
+			return jsonObject.toString();
 		}
 		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-			return  new RegisterResponse("Error: Email is already taken!");
+			jsonObject.put("status", "Error: Email is already taken!");
+			return jsonObject.toString();
 		}
 		// Create new user's account
 		User user = new User(signUpRequest.getName(), signUpRequest.getEmail(),
@@ -64,32 +78,36 @@ public class AuthServiceImp implements AuthService {
 
 		Set<String> strRoles = signUpRequest.getRoles();
 
- 		Set<Role> roles = new HashSet<>();
-		if (strRoles == null     ) {
- 			Role userRole = roleRepository.findByName("ROLE_USER")
+		Set<Role> roles = new HashSet<>();
+		if (strRoles == null) {
+			Role userRole = roleRepository.findByName("ROLE_USER")
 					.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 			roles.add(userRole);
 		} else {
- 			strRoles.forEach(role -> {
-				if(role.equals("admin")){
+			strRoles.forEach(role -> {
+				if (role.equals("admin")) {
 					Role adminRole = roleRepository.findByName("ROLE_ADMIN")
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 					roles.add(adminRole);
-				}
-				else{
+				} else {
 					Role userRole = roleRepository.findByName("ROLE_USER")
 							.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 					roles.add(userRole);
 				}
 			});
 		}
-  		user.setRoles(roles);
-		user   =userRepository .save(user);
-		Set<String> rolesResponse = new HashSet<>()  ;
-		user.getRoles().forEach(role->{
-			rolesResponse.add(role.getName()) ;
-		}) ;
-		RegisterResponse registerResponse = new RegisterResponse( user.getId()  ,  user.getUsername() , user.getEmail() ,  rolesResponse , user ==null  ? "failed" :"success" );
-		return registerResponse ;
+
+		user.setRoles(roles);
+		user = userRepository.save(user);
+		Set<String> rolesResponse = new HashSet<>();
+		user.getRoles().forEach(role -> {
+			rolesResponse.add(role.getName());
+		});
+		jsonObject.put("id", user.getId());
+		jsonObject.put("username", user.getUsername());
+		jsonObject.put("email", user.getEmail());
+		jsonObject.put("roles", rolesResponse);
+		jsonObject.put("status", user == null ? "failed" : "success");
+		return jsonObject.toString();
 	}
 }
