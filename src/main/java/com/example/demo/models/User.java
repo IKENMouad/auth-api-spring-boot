@@ -1,16 +1,20 @@
 package com.example.demo.models;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity(name = "users")
 @Getter
@@ -20,35 +24,29 @@ import lombok.*;
 @ToString
 public class User {
 
-	@Id
+	public User(Long id2, String username2, String username3) {
+    }
+
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Long id;
+
 	@NotBlank
-	@Size(max = 20)
+	@Size(max = 40) 
 	private String username;
+	
 	@NotBlank
-	@Size(max = 50)
+	@Size(max = 60)
 	@Email
 	private String email;
-	@NotBlank
-	@Size(max = 120)
+
+	@NotBlank 
 	@JsonIgnore
 	private String password;
+	
+	@NotBlank
+	private String role ;
+ 
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
-	private Set<Role> roles = new HashSet<>();
-
-	@ManyToMany()
-	@JoinTable(name = "user_permissions", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-	private Set<Permission> permissions = new HashSet<>();
-
-	public User(@NotBlank @Size(max = 20) String username, @NotBlank @Size(max = 50) @Email String email,
-			@NotBlank @Size(max = 120) String password) {
-		super();
-		this.username = username;
-		this.email = email;
-		this.password = password;
-	}
 
 }

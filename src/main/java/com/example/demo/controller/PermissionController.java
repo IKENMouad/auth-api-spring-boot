@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -20,9 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,36 +69,6 @@ public class PermissionController {
     }
     String jsonReponse = new ObjectMapper().writeValueAsString(mapItems);
     return new ResponseEntity<String>(jsonReponse, HttpStatus.OK);
-  }
-
-  @PutMapping(value = "/{userId}/attach-permission", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> attachPermissionToUser(@RequestBody PermissionRequest permissionRequest,
-      @PathVariable(required = true, name = "userId") long userId) throws Exception {
-    Map<String, String> mapItems = new HashMap<String, String>();
-    try {
-      String status = permissionService.attachPermissionToUser(userId, permissionRequest.getId());
-      mapItems.put("status", status);
-    } catch (Exception e) {
-      mapItems.put("status", "failure :" + e.getMessage());
-    }
-    String jsonResponse = new ObjectMapper().writeValueAsString(mapItems);
-    return new ResponseEntity<String>(jsonResponse, HttpStatus.OK);
-  }
-
-  @PutMapping(value = "/{userId}/attach-permissions", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> attachPermissionsToUser(@RequestBody Set<PermissionRequest> permissionRequests,
-
-      @PathVariable(required = true, name = "userId") long userId) throws Exception {
-    Map<String, String> mapItems = new HashMap<String, String>();
-    try {
-      String status = permissionService.attachPermissionsToUser(userId,
-          permissionRequests);
-      mapItems.put("status", status);
-    } catch (Exception e) {
-      mapItems.put("status", "failure :" + e.getMessage());
-    }
-    String jsonResponse = new ObjectMapper().writeValueAsString(mapItems);
-    return new ResponseEntity<String>(jsonResponse, HttpStatus.OK);
   }
 
 }

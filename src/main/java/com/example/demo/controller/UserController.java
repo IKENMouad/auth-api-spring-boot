@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +27,7 @@ public class UserController {
     private final UserServiceApi userService;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getUser(@PathVariable long id) throws Exception {
+    public ResponseEntity<String> getUser(@PathVariable String id) throws Exception {
         Map<String, Object> mapItems = new HashMap<String, Object>();
         try {
             User user = userService.getUserById(id);
@@ -43,11 +41,4 @@ public class UserController {
         String jsonResponse = new ObjectMapper().writeValueAsString(mapItems);
         return ResponseEntity.ok(jsonResponse);
     }
-
-    @GetMapping("/byrole")
-    public List<User> getUsersByRole(
-            @RequestParam(name = "role", required = true, defaultValue = "ROLE_USER") String roleName) {
-        return userService.getUsersByRole(roleName);
-    }
-
 }

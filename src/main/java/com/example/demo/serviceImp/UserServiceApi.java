@@ -15,7 +15,7 @@ public class UserServiceApi {
 
     private final UserRepository userRepository;
 
-    public User getUserById(long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id).get() ; 
     }
 
@@ -23,10 +23,7 @@ public class UserServiceApi {
         return userRepository.findAll();
     }
 
-    public List<User> getUsersByRole(String rolename) {
-        List<User> users = userRepository.findUsersByRoleName( rolename );
-        return users;
-    }
+ 
  
 
 }

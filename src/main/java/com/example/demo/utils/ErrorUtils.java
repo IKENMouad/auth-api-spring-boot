@@ -10,14 +10,14 @@ import org.springframework.validation.ObjectError;
 public class ErrorUtils {
 
     public static String customErrors(List<ObjectError> errors) throws Exception {
-        Map<String, String> errorsMap = new HashMap<>();
+        Map<String, Object> errorsMap = new HashMap<>();
         for (ObjectError error : errors) {
             if (error instanceof FieldError) {
                 FieldError errorField = (FieldError) error;
                 errorsMap.put(errorField.getField(), errorField.getDefaultMessage());
             }
         }
-        errorsMap.put("status", "failure");
+        errorsMap.put("hasError", true);
         String json = new ObjectMapper().writeValueAsString(errorsMap);
         return json;
     }

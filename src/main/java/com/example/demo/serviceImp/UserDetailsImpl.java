@@ -1,48 +1,37 @@
 package com.example.demo.serviceImp;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import com.example.demo.models.User;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.demo.models.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
-	@Getter
 	private Long id;
 
 	private String username;
 
-	@Getter
 	private String email;
-	@JsonIgnore
+
 	private String password;
 
-	@Getter
 	private Collection<? extends GrantedAuthority> authorities;
- 
+
 	public static UserDetailsImpl build(User user) {
-		List<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName() )).collect(Collectors.toList());
+		List<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority(user.getRole()));
 		return new UserDetailsImpl(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), authorities);
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
 	}
 
 	@Override
@@ -71,6 +60,8 @@ public class UserDetailsImpl implements UserDetails {
 				+ password + ", username=" + username + "]";
 	}
 
-	
+	public UserDetailsImpl(Long id2, String username2, String email2, String password2,
+			SimpleGrantedAuthority simpleGrantedAuthority) {
+	}
 
 }
