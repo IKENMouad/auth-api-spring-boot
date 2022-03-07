@@ -4,6 +4,6 @@ import com.example.demo.models.Store;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StoreRepository extends JpaRepository<Store, Long> {
+public interface StoreRepository  extends JpaRepository<Store , Long>  {
      
 }

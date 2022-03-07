@@ -73,7 +73,7 @@ public class UserServiceApi {
         if (fetchedUserStore == null) {
             return "user doesnt have this store";
         } 
-        fetchedUserStore.setEnable(!fetchedUserStore.isEnable());
+        fetchedUserStore.setHasAccess(!fetchedUserStore.isHasAccess());
          userStoreRepository.save(fetchedUserStore);
 
         return  "success";

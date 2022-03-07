@@ -30,6 +30,6 @@ public class UserStore {
     @JoinColumn(name = "store_id")
     private Store store;
 
-    private boolean enable;
+    private boolean hasAccess  ;
 
 }
